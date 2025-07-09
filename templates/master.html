@@ -11,7 +11,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>SCHOOL - Dashboard</title>
+    <title>BUCKNER KENYA - Dashboard</title>
 
     <!-- Custom fonts for this template-->
     <link href="{% static "vendor/fontawesome-free/css/all.min.css" %}" rel="stylesheet" type="text/css">
@@ -79,7 +79,7 @@
             <li class="nav-item {% if request.get_full_path == "/course/" %}active{% endif %}">
                 <a class="nav-link" href="{% url 'course.index' %}">
                     <i class="fas fa-fw fa-book"></i>
-                    <span>Courses & Fees</span></a>
+                    <span>Classes/Grades & Fees</span></a>
             </li>
 
             <!-- Divider -->
@@ -311,11 +311,11 @@
 
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                            <a class="nav-link dropdown-toggle" href="/account/profile" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small text-capitalize">{{ user.get_username }}</span>
                                 <img class="img-profile rounded-circle"
-                                    src="https://avatars.dicebear.com/api/initials/{{ user.username }}.svg?chars=1" alt="">
+                                    src="http://api.dicebear.com/9.x/pixel-art/svg?chars=1" alt="">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
