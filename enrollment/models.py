@@ -1,5 +1,4 @@
 import decimal
-
 from django.db import models
 
 from course.models import Course
@@ -14,14 +13,16 @@ class Enroll(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return "%s - %s/%s $%s" % (self.student_id.name, self.course_id.name, self.course_id.level, self.total_fee)
+        return f"{self.student_id.name} - {self.course_id.name}/{self.course_id.level} KES {self.total_fee:.2f}"
 
     @property
     def paid(self):
-        return sum([p.amount for p in self.payment_set.all()])
+        return sum(p.amount for p in self.payment_set.all())
 
+    @property
     def balance(self):
-        return decimal.Decimal(self.total_fee) - self.paid
+        return decimal.Decimal(self.total_fee) - decimal.Decimal(self.paid)
 
+    @property
     def last_payment(self):
         return self.payment_set.order_by('-date_created').first()

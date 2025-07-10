@@ -8,7 +8,6 @@
 
 {% block heading %}
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-{#        <h1 class="h3 mb-0 text-gray-800">Registration</h1>#}
         <a href="{% url 'enroll.index' %}" class="btn btn-danger btn-icon-split btn-sm">
             <span class="icon text-white-50">
                 <i class="fas fa-arrow-circle-left"></i>
@@ -27,15 +26,11 @@
 
 {% block content %}
     <div class="row">
-        <!-- Area Chart -->
         <div class="col-12">
             <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div
-                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary text-uppercase">Create Record</h6>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
                     <form action="{% url 'enroll.store' %}" method="post" id="enroll-form">
                         {% csrf_token %}
@@ -55,6 +50,12 @@
                                 {% endfor %}
                             </div>
                         {% endfor %}
+
+                        <!-- Course Fee Preview (readonly and visible) -->
+                        <div class="form-group">
+                            <label class="text-capitalize font-weight-bold">Total Course Fee</label>
+                            <input type="text" id="course-fee-preview" class="form-control" readonly value="KES 0.00">
+                        </div>
                     </form>
                 </div>
             </div>
@@ -67,6 +68,7 @@
     <script src="{% static 'js/main.js' %}"></script>
     <script>
         $(function () {
+            // Init select2
             $('select').each(function () {
                 $(this).select2({
                     theme: 'bootstrap4',
@@ -74,9 +76,35 @@
                 });
             });
 
+            // Update total_fee on course select
             $('#id_course_id').on('change', function () {
                 let course_id = $(this).val();
-                get_total_amount("{% url 'enroll.get_course_total_amount' %}", course_id);
+                if (course_id) {
+                    $.ajax({
+                        url: "{% url 'enroll.get_course_total_amount' %}",
+                        method: 'POST',
+                        data: {
+                            'csrfmiddlewaretoken': '{{ csrf_token }}',
+                            'course_id': course_id
+                        },
+                        success: function (res) {
+                            const fee = parseFloat(res.data || 0);
+
+                            // Update the preview box
+                            $('#course-fee-preview').val(`KES ${fee.toLocaleString(undefined, {minimumFractionDigits: 2})}`);
+
+                            // Update the actual hidden form input
+                            $('#id_total_fee').val(fee);
+                        },
+                        error: function () {
+                            $('#course-fee-preview').val("KES 0.00");
+                            $('#id_total_fee').val(0);
+                        }
+                    });
+                } else {
+                    $('#course-fee-preview').val("KES 0.00");
+                    $('#id_total_fee').val(0);
+                }
             });
         });
     </script>
