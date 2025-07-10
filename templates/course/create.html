@@ -30,97 +30,102 @@
 {% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary text-uppercase">Create Record</h6>
-                </div>
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary text-uppercase">Create Record</h6>
+            </div>
 
-                <div class="card-body">
-                    <form action="{% url 'course.store' %}" id="student-form" method="post">
-                        {% csrf_token %}
-                        <div class="row">
-                            <div class="col">
-                                <div class="card-body">
-                                    <h6 class="m-0 mb-3 font-weight-bold text-primary text-uppercase">Course Detail</h6>
-                                    {% for non_field_error in form.non_field_errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ non_field_error }}
-                                        </div>
-                                    {% endfor %}
-                                    {% for fields in course %}
-                                        <div class="form-group">
-                                            <label for="{{ fields.id_for_label }}" class="text-capitalize">{{ fields.label }}</label>
-                                            {{ fields }}
-                                            {% for error in fields.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {{ error }}
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-
-                            <div class="col">
-                                <div class="card-body">
-                                    <h6 class="m-0 mb-3 font-weight-bold text-primary text-uppercase">Fee Detail</h6>
-                                    {% for non_field_error in form.non_field_errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ non_field_error }}
-                                        </div>
-                                    {% endfor %}
-                                    {% for fields in fee %}
-                                        <div class="form-group">
-                                            <label for="{{ fields.id_for_label }}" class="text-capitalize">{{ fields.label }}</label>
-                                            {{ fields }}
-                                            {% for error in fields.errors %}
-                                                <div class="invalid-feedback d-block">
-                                                    {{ error }}
-                                                </div>
-                                            {% endfor %}
-                                        </div>
-                                    {% endfor %}
-
-                                    <a href="javascript:void(0)" onclick="insert_fee()" class="btn btn-primary btn-icon-split btn-sm mb-4">
-                                        <span class="icon text-white-50">
-                                            <i class="fas fa-plus-circle"></i>
-                                        </span>
-                                        <span class="text">Add</span>
-                                    </a>
-
-                                    <table class="table" id="fee-table">
-                                        <thead class="thead-dark">
-                                            <tr>
-                                                <th>Description</th>
-                                                <th>Amount</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        </tbody>
-                                        <tfoot class="text-uppercase">
-                                            <tr class="text-center">
-                                                <td>Total</td>
-                                                <td id="fee-total">KES0</td>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
+            <div class="card-body">
+                <form action="{% url 'course.store' %}" id="student-form" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="fee_data" id="fee_data">
+                    <div class="row">
+                        <div class="col">
+                            <div class="card-body">
+                                <h6 class="m-0 mb-3 font-weight-bold text-primary text-uppercase">Course Detail</h6>
+                                {% for non_field_error in form.non_field_errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ non_field_error }}
+                                    </div>
+                                {% endfor %}
+                                {% for fields in course %}
+                                    <div class="form-group">
+                                        <label for="{{ fields.id_for_label }}" class="text-capitalize">{{ fields.label }}</label>
+                                        {{ fields }}
+                                        {% for error in fields.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ error }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endfor %}
                             </div>
                         </div>
-                    </form>
-                </div>
+
+                        <div class="col">
+                            <div class="card-body">
+                                <h6 class="m-0 mb-3 font-weight-bold text-primary text-uppercase">Fee Detail</h6>
+                                {% for non_field_error in form.non_field_errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ non_field_error }}
+                                    </div>
+                                {% endfor %}
+                                {% for fields in fee %}
+                                    <div class="form-group">
+                                        <label for="{{ fields.id_for_label }}" class="text-capitalize">{{ fields.label }}</label>
+                                        {{ fields }}
+                                        {% for error in fields.errors %}
+                                            <div class="invalid-feedback d-block">
+                                                {{ error }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endfor %}
+
+                                <a href="javascript:void(0)" onclick="insert_fee()" class="btn btn-primary btn-icon-split btn-sm mb-4">
+                                    <span class="icon text-white-50">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </span>
+                                    <span class="text">Add</span>
+                                </a>
+
+                                <table class="table" id="fee-table">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>Description</th>
+                                            <th>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                    <tfoot class="text-uppercase">
+                                        <tr class="text-center">
+                                            <td>Total</td>
+                                            <td id="fee-total">KES0</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block script %}
 <script>
+    const fees = [];
+
     function insert_fee() {
         const descriptionInput = document.getElementById('id_fee_desc');
         const amountInput = document.getElementById('id_amount');
+        const totalInput = document.getElementById('id_total_amount');
+        const feeDataInput = document.getElementById('fee_data');
 
         if (!descriptionInput || !amountInput) {
             alert("Fee description or amount field not found.");
@@ -135,6 +140,8 @@
             return;
         }
 
+        fees.push({ fee_desc: description, amount: amount });
+
         const tableBody = document.querySelector('#fee-table tbody');
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
@@ -143,23 +150,13 @@
         `;
         tableBody.appendChild(newRow);
 
-        // Update total
-        let total = 0;
-        document.querySelectorAll('#fee-table tbody tr').forEach(row => {
-            const amtText = row.children[1].innerText.replace('KES', '').replace(/,/g, '').trim();
-            total += parseFloat(amtText);
-        });
+        let total = fees.reduce((sum, item) => sum + item.amount, 0);
         document.querySelector('#fee-table tfoot td:last-child').innerText = `KES${total.toLocaleString()}`;
 
-        // Clear fields
         descriptionInput.value = '';
         amountInput.value = '';
-
-        // Update hidden total input
-        const totalInput = document.getElementById('id_total_amount');
-        if (totalInput) {
-            totalInput.value = total;
-        }
+        if (totalInput) totalInput.value = total;
+        if (feeDataInput) feeDataInput.value = JSON.stringify(fees);
     }
 </script>
 {% endblock %}

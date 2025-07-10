@@ -2,9 +2,9 @@ from django.contrib import messages
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-
 from course import models
 from course.forms import CreateCourseForm, CreateFeeForm
+import json
 
 
 def index(request):
@@ -23,25 +23,30 @@ def store(request):
         course_valid = CreateCourseForm(request.POST)
         fee_valid = CreateFeeForm(request.POST)
 
-        if course_valid.is_valid() and fee_valid.is_valid():
-            fee_desc = request.POST.getlist('fee_desc[]')
-            fee_amount = request.POST.getlist('amount[]')
+        try:
+            fees_json = request.POST.get('fee_data', '[]')
+            fees = json.loads(fees_json)
+        except json.JSONDecodeError:
+            fees = []
 
-            if len(fee_desc) > 0 and len(fee_amount) > 0:
+        if course_valid.is_valid():
+            if fees and isinstance(fees, list):
                 with transaction.atomic():
                     course = course_valid.save()
-                    for i in range(len(fee_desc)):
-                        models.Fee.objects.create(course=course, fee_desc=fee_desc[i], amount=fee_amount[i])
+                    for fee_item in fees:
+                        desc = fee_item.get('fee_desc', '').strip()
+                        amount = fee_item.get('amount', 0)
+                        if desc and amount:
+                            models.Fee.objects.create(course=course, fee_desc=desc, amount=amount)
                     messages.success(request, 'Course created successfully')
                     return redirect('course.index')
             else:
-                messages.warning(request, 'Please add atleast one fee')
+                messages.warning(request, 'Please add at least one fee before submitting.')
                 return redirect('course.create')
-
         else:
             return render(request, 'course/create.html', {'course': course_valid, 'fee': fee_valid})
-    else:
-        return redirect('course.create')
+
+    return redirect('course.create')
 
 
 def edit(request, cid):
@@ -62,27 +67,35 @@ def update(request, cid):
             fee = models.Fee.objects.filter(course=course)
             course_form = CreateCourseForm(request.POST, instance=course)
             fee_form = CreateFeeForm(request.POST, instance=fee.last())
-            if course_form.is_valid() and fee_form.is_valid():
-                fee_desc = request.POST.getlist('fee_desc[]')
-                fee_amount = request.POST.getlist('amount[]')
 
-                if len(fee_desc) > 0 and len(fee_amount) > 0:
+            try:
+                fees_json = request.POST.get('fee_data', '[]')
+                fees = json.loads(fees_json)
+            except json.JSONDecodeError:
+                fees = []
+
+            if course_form.is_valid():
+                if fees and isinstance(fees, list):
                     with transaction.atomic():
                         fee.delete()
                         course_form.save()
-                        for i in range(len(fee_desc)):
-                            models.Fee.objects.create(course=course, fee_desc=fee_desc[i], amount=fee_amount[i])
+                        for fee_item in fees:
+                            desc = fee_item.get('fee_desc', '').strip()
+                            amount = fee_item.get('amount', 0)
+                            if desc and amount:
+                                models.Fee.objects.create(course=course, fee_desc=desc, amount=amount)
                         messages.success(request, 'Course updated successfully')
                         return redirect('course.index')
                 else:
-                    messages.warning(request, 'Please add atleast one fee')
+                    messages.warning(request, 'Please add at least one fee before submitting.')
                     return redirect('course.edit', cid=cid)
             else:
                 return render(request, 'course/edit.html', {'course': course_form, 'fee': fee_form, 'fees': fee})
+
         except models.Course.DoesNotExist:
             return redirect('course.index')
-    else:
-        return redirect('course.index')
+
+    return redirect('course.index')
 
 
 def delete(request, cid):
