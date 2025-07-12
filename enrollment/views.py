@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 
 from course.models import Course
 from enrollment.forms import CreateEnrollForm
@@ -17,7 +18,7 @@ def create(request):
     form = CreateEnrollForm()
     return render(request, 'enrollment/create.html', {'form': form})
 
-
+@csrf_exempt
 @require_POST
 def get_course_total_amount(request):
     course_id = request.POST.get('course_id')
@@ -26,7 +27,7 @@ def get_course_total_amount(request):
 
     try:
         course = Course.objects.get(id=course_id)
-        return JsonResponse({'data': float(course.total_amount or 0)})
+        return JsonResponse({'data': float(course.fee or 0)})  # ✅ FIXED LINE
     except Course.DoesNotExist:
         return JsonResponse({'data': 0})
 

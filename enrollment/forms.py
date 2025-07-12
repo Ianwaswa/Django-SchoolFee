@@ -12,7 +12,7 @@ class CreateEnrollForm(forms.ModelForm):
 
     course_id = forms.ModelChoiceField(queryset=Course.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}),
-                                       label='Course')
+                                       label='Grade/Class')
 
     total_fee = forms.FloatField(widget=forms.TextInput(attrs={'class': 'form-control', 'readonly': 'readonly'}))
 
