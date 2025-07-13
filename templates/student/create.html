@@ -1,15 +1,15 @@
+{# student/create.html #}
 {% extends 'master.html' %}
+{% load static %}
 
 {% block heading %}
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-{#        <h1 class="h3 mb-0 text-gray-800">Registration</h1>#}
         <a href="{% url 'student.index' %}" class="btn btn-danger btn-icon-split btn-sm">
             <span class="icon text-white-50">
                 <i class="fas fa-arrow-circle-left"></i>
             </span>
             <span class="text">Cancel</span>
         </a>
-
         <a href="javascript:void(0)" onclick="document.getElementById('student-form').submit()" class="btn btn-primary btn-icon-split btn-sm">
             <span class="icon text-white-50">
                 <i class="fas fa-save"></i>
@@ -21,15 +21,11 @@
 
 {% block content %}
     <div class="row">
-        <!-- Area Chart -->
         <div class="col-12">
             <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div
-                    class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary text-uppercase">Create Record</h6>
                 </div>
-                <!-- Card Body -->
                 <div class="card-body">
                     <form action="{% url 'student.store' %}" id="student-form" method="post">
                         {% csrf_token %}
@@ -40,7 +36,7 @@
                         {% endfor %}
                         {% for fields in form %}
                             <div class="form-group">
-                                <label for="{{ fields.id_for_label }}" class="text-capitalize">{{ fields.html_name }}</label>
+                                <label for="{{ fields.id_for_label }}" class="text-capitalize">{{ fields.label }}</label>
                                 {{ fields }}
                                 {% for error in fields.errors %}
                                     <div class="invalid-feedback d-block">
@@ -49,9 +45,36 @@
                                 {% endfor %}
                             </div>
                         {% endfor %}
+
+                        <!-- Show fee preview -->
+                        <div class="form-group">
+                            <label class="font-weight-bold">Total Fee</label>
+                            <input type="text" id="course-fee" class="form-control" readonly value="KES 0.00">
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        document.getElementById('id_course').addEventListener('change', function () {
+            const courseId = this.value;
+            if (courseId) {
+                fetch(`/student/get-course-fee/?course_id=${courseId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const fee = parseFloat(data.fee || 0);
+                        document.getElementById('course-fee').value = `KES ${fee.toLocaleString('en-KE', { minimumFractionDigits: 2 })}`;
+                    })
+                    .catch(() => {
+                        document.getElementById('course-fee').value = "KES 0.00";
+                    });
+            } else {
+                document.getElementById('course-fee').value = "KES 0.00";
+            }
+        });
+    </script>
 {% endblock %}

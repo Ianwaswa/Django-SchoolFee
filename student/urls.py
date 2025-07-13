@@ -10,4 +10,7 @@ urlpatterns = [
     path('edit/<int:sid>/', login_required(views.edit), name="student.edit"),
     path('update/<int:sid>/', login_required(views.update), name="student.update"),
     path('delete/<int:sid>/', login_required(views.delete), name="student.delete"),
+
+    # ✅ AJAX endpoint for retrieving course fee dynamically
+    path('get-course-fee/', login_required(views.get_course_fee), name='student.get_course_fee'),
 ]
