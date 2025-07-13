@@ -10,7 +10,7 @@ if (ctx) {
     data: {
       labels: ["Direct", "Referral", "Social"],
       datasets: [{
-        data: [55, 30, 15],
+        data: [5500, 3000, 1500],
         backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
         hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
         hoverBorderColor: "rgba(234, 236, 244, 1)",
@@ -18,7 +18,7 @@ if (ctx) {
     },
     options: {
       maintainAspectRatio: false,
-      cutout: '80%', // replaces `cutoutPercentage`
+      cutout: '80%', // replaces deprecated `cutoutPercentage`
       plugins: {
         tooltip: {
           backgroundColor: "rgb(255,255,255)",
@@ -28,6 +28,13 @@ if (ctx) {
           padding: 15,
           displayColors: false,
           caretPadding: 10,
+          callbacks: {
+            label: function (context) {
+              const label = context.label || '';
+              const value = context.parsed;
+              return label + ': KES ' + value.toLocaleString();
+            }
+          }
         },
         legend: {
           display: false

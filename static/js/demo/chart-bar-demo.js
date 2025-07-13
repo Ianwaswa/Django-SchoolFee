@@ -68,7 +68,7 @@ if (ctx) {
             maxTicksLimit: 5,
             padding: 10,
             callback: function(value) {
-              return '$' + number_format(value);
+              return 'KES ' + number_format(value);
             }
           },
           grid: {
@@ -100,7 +100,7 @@ if (ctx) {
           callbacks: {
             label: function(context) {
               var label = context.dataset.label || '';
-              return label + ': $' + number_format(context.parsed.y);
+              return label + ': KES ' + number_format(context.parsed.y);
             }
           }
         }
