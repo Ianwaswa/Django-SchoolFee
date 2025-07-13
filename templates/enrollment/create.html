@@ -9,16 +9,11 @@
 {% block heading %}
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <a href="{% url 'enroll.index' %}" class="btn btn-danger btn-icon-split btn-sm">
-            <span class="icon text-white-50">
-                <i class="fas fa-arrow-circle-left"></i>
-            </span>
+            <span class="icon text-white-50"><i class="fas fa-arrow-circle-left"></i></span>
             <span class="text">Cancel</span>
         </a>
-
-        <a href="javascript:void(0)" onclick="$('#enroll-form').submit()" class="btn btn-primary btn-icon-split btn-sm">
-            <span class="icon text-white-50">
-                <i class="fas fa-save"></i>
-            </span>
+        <a href="javascript:void(0)" onclick="document.getElementById('enroll-form').submit()" class="btn btn-primary btn-icon-split btn-sm">
+            <span class="icon text-white-50"><i class="fas fa-save"></i></span>
             <span class="text">Insert</span>
         </a>
     </div>
@@ -35,23 +30,19 @@
                     <form action="{% url 'enroll.store' %}" method="post" id="enroll-form">
                         {% csrf_token %}
                         {% for non_field_error in form.non_field_errors %}
-                            <div class="invalid-feedback d-block">
-                                {{ non_field_error }}
-                            </div>
+                            <div class="invalid-feedback d-block">{{ non_field_error }}</div>
                         {% endfor %}
                         {% for fields in form %}
                             <div class="form-group">
                                 <label for="{{ fields.id_for_label }}" class="text-capitalize">{{ fields.label }}</label>
                                 {{ fields }}
                                 {% for error in fields.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ error }}
-                                    </div>
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
                                 {% endfor %}
                             </div>
                         {% endfor %}
 
-                        <!-- Course Fee Preview (readonly and visible) -->
+                        <!-- Course Fee Preview -->
                         <div class="form-group">
                             <label class="text-capitalize font-weight-bold">Total Course Fee</label>
                             <input type="text" id="course-fee-preview" class="form-control" readonly value="KES 0.00">
@@ -64,48 +55,32 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'vendor/select2/select2.min.js' %}"></script>
-    <script src="{% static 'js/main.js' %}"></script>
-    <script>
-        $(function () {
-            // Init select2
-            $('select').each(function () {
-                $(this).select2({
-                    theme: 'bootstrap4',
-                    placeholder: '---',
-                });
-            });
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const courseSelect = document.getElementById("id_course_id");
+        const feeInput = document.getElementById("id_total_fee");
+        const feePreview = document.getElementById("course-fee-preview");
 
-            // Update total_fee on course select
-            $('#id_course_id').on('change', function () {
-                let course_id = $(this).val();
-                if (course_id) {
-                    $.ajax({
-                        url: "{% url 'enroll.get_course_total_amount' %}",
-                        method: 'POST',
-                        data: {
-                            'csrfmiddlewaretoken': '{{ csrf_token }}',
-                            'course_id': course_id
-                        },
-                        success: function (res) {
-                            const fee = parseFloat(res.data || 0);
-
-                            // Update the preview box
-                            $('#course-fee-preview').val(`KES ${fee.toLocaleString(undefined, {minimumFractionDigits: 2})}`);
-
-                            // Update the actual hidden form input
-                            $('#id_total_fee').val(fee);
-                        },
-                        error: function () {
-                            $('#course-fee-preview').val("KES 0.00");
-                            $('#id_total_fee').val(0);
-                        }
+        courseSelect.addEventListener("change", function () {
+            const courseId = this.value;
+            if (courseId) {
+                fetch(`/enroll/get_course_total_amount/?course_id=${courseId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const fee = parseFloat(data.data || 0);
+                        feePreview.value = `KES ${fee.toLocaleString("en-KE", { minimumFractionDigits: 2 })}`;
+                        feeInput.value = fee;
+                    })
+                    .catch(error => {
+                        console.error("Failed to load course fee:", error);
+                        feePreview.value = "KES 0.00";
+                        feeInput.value = 0;
                     });
-                } else {
-                    $('#course-fee-preview').val("KES 0.00");
-                    $('#id_total_fee').val(0);
-                }
-            });
+            } else {
+                feePreview.value = "KES 0.00";
+                feeInput.value = 0;
+            }
         });
-    </script>
+    });
+</script>
 {% endblock %}
