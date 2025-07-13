@@ -90,7 +90,7 @@
                                     <td>{{ payment.enroll_id.student_id_id }}</td>
                                     <td>{{ payment.enroll_id_id }}</td>
                                     <td>{{ payment.enroll_id.student_id }}</td>
-                                    <td>${{ payment.amount }}</td>
+                                    <td>KES {{ payment.amount }}</td>
                                     <td class="text-center align-middle">
                                         <a href="{% url 'payment.invoice' pid=payment.id %}" class="d-none d-sm-inline-block btn btn-sm btn-success">
                                             <i class="fas fa-file-invoice fa-fw fa-sm text-white-50"></i>

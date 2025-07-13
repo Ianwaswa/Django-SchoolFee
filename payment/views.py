@@ -7,6 +7,7 @@ from course.models import Fee
 from enrollment.models import Enroll
 from payment.forms import CreatePaymentForm, DateSelectionForm
 from payment.models import Payment, Action
+from django.views.decorators.http import require_POST  # <-- ADD THIS
 
 
 def index(request):
@@ -39,9 +40,16 @@ def store(request):
         return redirect('payment.create')
 
 
+@require_POST
 def get_outstanding_balance(request):
-    balance = Enroll.objects.get(id=request.POST.get('enroll_id')).balance()
-    return JsonResponse({'data': balance})
+    try:
+        enroll_id = request.POST.get('enroll_id')
+        enroll = Enroll.objects.get(id=enroll_id)
+        return JsonResponse({'data': float(enroll.balance)})
+    except Enroll.DoesNotExist:
+        return JsonResponse({'data': 0})
+    except Exception as e:
+        return JsonResponse({'data': 0, 'error': str(e)})
 
 
 def edit(request, pid):
@@ -98,7 +106,6 @@ def delete(request, pid):
 def invoice(request, pid):
     try:
         current = Payment.objects.get(id=pid)
-        # history = Payment.objects.filter(enroll_id=current.enroll_id)
         fees = Fee.objects.filter(course_id=current.enroll_id.course_id)
 
         history = Payment.objects.filter(enroll_id=current.enroll_id, id__lte=current.id)
