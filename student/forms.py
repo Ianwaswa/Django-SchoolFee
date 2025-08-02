@@ -1,4 +1,3 @@
-# student/forms.py
 from django import forms
 from student.models import Student
 from course.models import Course
@@ -21,3 +20,11 @@ class CreateStudentForm(forms.ModelForm):
     class Meta:
         model = Student
         fields = ['name', 'email', 'contact', 'address', 'course']
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(CreateStudentForm, self).__init__(*args, **kwargs)
+
+        if not self.user.is_superuser:
+            school = self.user.userprofile.school
+            self.fields['course'].queryset = Course.objects.filter(school=school)

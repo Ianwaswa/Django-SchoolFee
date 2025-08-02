@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 from enrollment.models import Enroll
+from school.models import School
 
 
 class Payment(models.Model):
@@ -13,6 +14,7 @@ class Payment(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
+    school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=False)
 
 
 class Action(models.Model):

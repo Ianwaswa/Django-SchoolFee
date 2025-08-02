@@ -3,11 +3,13 @@ from django.db import models
 
 from course.models import Course
 from student.models import Student
+from school.models import School
 
 
 class Enroll(models.Model):
     student_id = models.ForeignKey(Student, on_delete=models.CASCADE)
     course_id = models.ForeignKey(Course, on_delete=models.CASCADE)
+    school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=False)
     total_fee = models.FloatField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -9,7 +9,7 @@ from payment.models import Payment
 class CreatePaymentForm(forms.ModelForm):
     enroll_id = forms.ModelChoiceField(
         label='Enrollment',
-        queryset=Enroll.objects.all(),
+        queryset=Enroll.objects.none(),
         widget=forms.Select(attrs={'class': 'form-control'}),
     )
     balance = forms.DecimalField(
@@ -30,8 +30,20 @@ class CreatePaymentForm(forms.ModelForm):
         model = Payment
         fields = ['enroll_id', 'balance', 'amount', 'remarks']
 
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super(CreatePaymentForm, self).__init__(*args, **kwargs)
 
-class DateSelectionForm(forms.ModelForm):
+        if self.request:
+            user = self.request.user
+            if user.is_superuser:
+                self.fields['enroll_id'].queryset = Enroll.objects.all()
+            else:
+                school = user.userprofile.school
+                self.fields['enroll_id'].queryset = Enroll.objects.filter(school=school)
+
+
+class DateSelectionForm(forms.Form):
     MONTH_CHOICES = (
         (1, "Jan"),
         (2, "Feb"),
@@ -47,15 +59,15 @@ class DateSelectionForm(forms.ModelForm):
         (12, "Dec"),
     )
 
-    month = forms.ChoiceField(choices=MONTH_CHOICES, initial=datetime.now().month,
-                              widget=forms.Select(attrs={'class': 'form-control'}))
+    month = forms.ChoiceField(
+        choices=MONTH_CHOICES,
+        initial=datetime.now().month,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
-    YEAR_CHOICES = []
-    for r in range(2020, 2040):
-        YEAR_CHOICES.append((r, r))
-    year = forms.ChoiceField(choices=YEAR_CHOICES, initial=datetime.now().year,
-                             widget=forms.Select(attrs={'class': 'form-control'}))
-
-    class Meta:
-        model = Payment
-        fields = ['month', 'year']
+    YEAR_CHOICES = [(r, r) for r in range(2020, 2040)]
+    year = forms.ChoiceField(
+        choices=YEAR_CHOICES,
+        initial=datetime.now().year,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
