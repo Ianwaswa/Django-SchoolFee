@@ -16,15 +16,30 @@ def get_user_school(request):
     except UserProfile.DoesNotExist:
         return None
 
+# ✅ Course list view — restrict by school
 def index(request):
-    courses = models.Course.objects.all()
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    school = get_user_school(request)
+
+    if request.user.is_superuser:
+        courses = models.Course.objects.all()
+    elif school:
+        courses = models.Course.objects.filter(school=school)
+    else:
+        messages.error(request, "Your account is not linked to a school.")
+        return redirect('dashboard')  # or another safe fallback page
+
     return render(request, 'course/index.html', {'courses': courses})
 
+# ✅ Create course view
 def create(request):
     course = CreateCourseForm()
     fee = CreateFeeForm()
     return render(request, 'course/create.html', {'course': course, 'fee': fee})
 
+# ✅ Store newly created course + fees
 def store(request):
     if request.method == 'POST':
         course_valid = CreateCourseForm(request.POST)
@@ -36,7 +51,6 @@ def store(request):
         except json.JSONDecodeError:
             fees = []
 
-        # ✅ Defensive check
         school = get_user_school(request)
         if not school and not request.user.is_superuser:
             messages.error(request, "Your account is not linked to a school.")
@@ -46,7 +60,7 @@ def store(request):
             if fees and isinstance(fees, list):
                 with transaction.atomic():
                     course = course_valid.save(commit=False)
-                    course.school = school  # ✅ Assign school
+                    course.school = school
                     course.save()
 
                     for fee_item in fees:
@@ -65,6 +79,7 @@ def store(request):
 
     return redirect('course.create')
 
+# ✅ Edit course view
 def edit(request, cid):
     try:
         course = models.Course.objects.get(id=cid)
@@ -75,6 +90,7 @@ def edit(request, cid):
     except models.Course.DoesNotExist:
         return redirect('course.index')
 
+# ✅ Update course and fees
 def update(request, cid):
     if request.method == 'POST':
         try:
@@ -89,7 +105,6 @@ def update(request, cid):
             except json.JSONDecodeError:
                 fees = []
 
-            # ✅ Defensive check
             school = get_user_school(request)
             if not school and not request.user.is_superuser:
                 messages.error(request, "Your account is not linked to a school.")
@@ -100,7 +115,7 @@ def update(request, cid):
                     with transaction.atomic():
                         fee.delete()
                         course = course_form.save(commit=False)
-                        course.school = school  # ✅ Assign school
+                        course.school = school
                         course.save()
 
                         for fee_item in fees:
@@ -122,6 +137,7 @@ def update(request, cid):
 
     return redirect('course.index')
 
+# ✅ Delete course
 def delete(request, cid):
     try:
         course = models.Course.objects.get(id=cid)

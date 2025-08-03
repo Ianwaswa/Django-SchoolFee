@@ -9,28 +9,54 @@ from payment.models import Payment, Action
 from student.models import Student
 
 
+def get_user_school(request):
+    # Return the user's school if available, else None
+    try:
+        return request.user.userprofile.school
+    except AttributeError:
+        return None
+
+
 def index(request):
-    payment = Payment.objects.all().order_by('-date_created')[:10]
+    school = get_user_school(request)
+
+    if school:
+        payments = Payment.objects.filter(school=school).order_by('-date_created')[:10]
+        enroll_count = Enroll.objects.filter(school=school).count()
+        student_count = Student.objects.filter(school=school).count()
+    else:
+        payments = Payment.objects.all().order_by('-date_created')[:10]
+        enroll_count = Enroll.objects.all().count()
+        student_count = Student.objects.all().count()
 
     earnings = {}
     for month in range(1, 13):
-        earnings[month] = Payment.objects.filter(date_created__month=month).aggregate(Sum('amount'))['amount__sum'] or 0
+        qset = Payment.objects.filter(date_created__month=month)
+        if school:
+            qset = qset.filter(school=school)
+        earnings[month] = qset.aggregate(Sum('amount'))['amount__sum'] or 0
 
-    monthly = earnings[datetime.now().month]
+    monthly = earnings.get(datetime.now().month, 0)
     annual = sum(earnings.values())
-    enroll = Enroll.objects.all().count()
-    students = Student.objects.all().count()
 
     return render(request, 'index.html', {
-        'payment': payment,
+        'payment': payments,
         'earnings': earnings,
         'monthly': monthly,
         'annual': annual,
-        'enroll': enroll,
-        'students': students,
+        'enroll': enroll_count,
+        'students': student_count,
     })
 
 
 def activity(request):
-    payment_activity = Action.objects.all().order_by('-created')
-    return render(request, 'activity/index.html', {'payment_activity': payment_activity})
+    school = get_user_school(request)
+
+    if school:
+        payment_activity = Action.objects.filter(school=school).order_by('-created')
+    else:
+        payment_activity = Action.objects.all().order_by('-created')
+
+    return render(request, 'activity/index.html', {
+        'payment_activity': payment_activity
+    })
