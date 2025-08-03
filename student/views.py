@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from . import models, forms
 from course.models import Course
+from openpyxl import load_workbook
+from django.contrib.auth.decorators import login_required
 
 def get_user_school(request):
     if request.user.is_superuser:
@@ -77,3 +79,46 @@ def get_course_fee(request):
         except Course.DoesNotExist:
             return JsonResponse({'fee': 0})
     return JsonResponse({'fee': 0})
+
+@login_required
+def import_students(request):
+    if request.method == "POST" and request.FILES.get("excel_file"):
+        file = request.FILES["excel_file"]
+        try:
+            wb = load_workbook(file)
+        except Exception:
+            messages.error(request, "Failed to open the Excel file. Please ensure it is a valid .xlsx file.")
+            return redirect('student.import')
+
+        sheet = wb.active
+        created_count = 0
+        skipped_rows = []
+
+        for idx, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), start=2):
+            name, email, contact, address, course_name = row[:5]  # adapt based on your sheet
+            if not name:
+                skipped_rows.append(idx)
+                continue
+
+            course = None
+            if course_name:
+                course = Course.objects.filter(name__iexact=course_name.strip()).first()
+
+            models.Student.objects.create(
+                name=name.strip(),
+                email=email or "",
+                contact=contact or "",
+                address=address or "",
+                course=course,
+                school=request.user.userprofile.school if not request.user.is_superuser else None,
+            )
+            created_count += 1
+
+        if created_count:
+            messages.success(request, f"{created_count} students imported successfully.")
+        if skipped_rows:
+            messages.warning(request, f"Skipped rows missing name: {skipped_rows}")
+
+        return redirect('student.index')
+
+    return render(request, "student/import.html")

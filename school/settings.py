@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'payment',
     'account',
     'school',
-    'core',
+    # 'core',
 ]
 
 MIDDLEWARE = [

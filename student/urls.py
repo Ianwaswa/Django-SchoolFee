@@ -13,4 +13,5 @@ urlpatterns = [
 
     # ✅ AJAX endpoint for retrieving course fee dynamically
     path('get-course-fee/', login_required(views.get_course_fee), name='student.get_course_fee'),
+    path('import/', login_required(views.import_students), name="student.import"),
 ]

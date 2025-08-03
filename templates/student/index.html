@@ -11,12 +11,20 @@
             <i class="fas fa-fw fa-user-graduate"></i>
         </h1>
 
+        <div class="btn-group">
         <a href="{% url 'student.create' %}" class="btn btn-success btn-icon-split btn-sm">
             <span class="icon text-white-50">
                 <i class="fas fa-plus-circle"></i>
             </span>
             <span class="text">Create</span>
         </a>
+        <a href="{% url 'student.import' %}" class="btn btn-info btn-icon-split btn-sm ml-2">
+            <span class="icon text-white-50">
+                <i class="fas fa-file-import"></i>
+            </span>
+            <span class="text">Import Excel</span>
+        </a>
+    </div>
     </div>
     {% include "messages.html" %}
 {% endblock %}
@@ -54,9 +62,9 @@
                                     <td>{{ student.id }}</td>
                                     <td>{{ student.name }}</td>
                                     <td>
-                                        Email: {{ student.email }}<br>
-                                        Contact #: {{ student.contact }}<br>
-                                        Address: {{ student.address }}
+                                        UPI No: {{ student.email }}<br>
+                                        Adm: {{ student.contact }}<br>
+                                        Grade: {{ student.address }}
                                     </td>
                                     <td class="text-center align-middle">
                                         <a href="{% url 'student.edit' sid=student.id %}" class="d-none d-sm-inline-block btn btn-sm btn-primary">
