@@ -1,12 +1,12 @@
 from django.db import models
-from school.models import School  # ✅ import School model
+from school.models import School
 
 class Course(models.Model):
     name = models.CharField(max_length=100)
     course_desc = models.TextField()
     level = models.CharField(max_length=100)
     total_amount = models.FloatField()
-    school = models.ForeignKey(School, on_delete=models.CASCADE)  # ✅ Add this line
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -9,7 +9,7 @@ class Student(models.Model):
     contact = models.CharField(max_length=50, blank=False)
     address = models.CharField(max_length=150, blank=False)
     email = models.CharField(max_length=100)
-    course = models.ForeignKey(Course, on_delete=models.SET_NULL, null=True, blank=True)  # New Field
+    course = models.ForeignKey(Course, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=False)
