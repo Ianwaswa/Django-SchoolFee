@@ -53,10 +53,11 @@ def activity(request):
     school = get_user_school(request)
 
     if school:
-        payment_activity = Action.objects.filter(school=school).order_by('-created')
+        payment_activity = Action.objects.filter(sender__userprofile__school=school).order_by('-created')
     else:
         payment_activity = Action.objects.all().order_by('-created')
 
     return render(request, 'activity/index.html', {
         'payment_activity': payment_activity
     })
+

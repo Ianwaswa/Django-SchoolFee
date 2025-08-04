@@ -7,28 +7,34 @@ from course.models import Fee
 from enrollment.models import Enroll
 from payment.forms import CreatePaymentForm, DateSelectionForm
 from payment.models import Payment, Action
+from school.models import UserProfile
 
-
+# ✅ Safe school getter
 def get_user_school(request):
-    return request.user.userprofile.school
-
+    if request.user.is_superuser:
+        return None
+    try:
+        return request.user.userprofile.school
+    except UserProfile.DoesNotExist:
+        return None
 
 def is_admin(request):
     return request.user.is_superuser
-
 
 def index(request):
     if is_admin(request):
         payments = Payment.objects.all()
     else:
-        payments = Payment.objects.filter(school=get_user_school(request))
+        school = get_user_school(request)
+        if not school:
+            messages.error(request, "Your account is not linked to a school.")
+            return redirect('dashboard')  # Or any fallback
+        payments = Payment.objects.filter(school=school)
     return render(request, 'payment/index.html', {'payments': payments})
-
 
 def create(request):
     form = CreatePaymentForm(request=request)
     return render(request, 'payment/create.html', {'form': form})
-
 
 def store(request):
     if request.method == 'POST':
@@ -37,7 +43,11 @@ def store(request):
             with transaction.atomic():
                 payment = form.save(commit=False)
                 payment.created_by = request.user
-                payment.school = get_user_school(request)
+                school = get_user_school(request)
+                if not school and not is_admin(request):
+                    messages.error(request, "Your account is not linked to a school.")
+                    return redirect('payment.create')
+                payment.school = school
                 payment.save()
                 Action.objects.create(sender=request.user, verb="created this payment", target=payment)
                 messages.success(request, 'Payment created successfully')
@@ -45,7 +55,6 @@ def store(request):
         else:
             return render(request, 'payment/create.html', {'form': form})
     return redirect('payment.create')
-
 
 @require_POST
 def get_outstanding_balance(request):
@@ -59,7 +68,6 @@ def get_outstanding_balance(request):
     except Enroll.DoesNotExist:
         return JsonResponse({'data': 0})
 
-
 def edit(request, pid):
     try:
         payment = Payment.objects.get(id=pid)
@@ -70,7 +78,6 @@ def edit(request, pid):
     except Payment.DoesNotExist:
         messages.error(request, 'Payment does not exist')
         return redirect('payment.index')
-
 
 def update(request, pid):
     if request.method == 'POST':
@@ -91,22 +98,22 @@ def update(request, pid):
             messages.error(request, 'Payment does not exist')
     return redirect('payment.index')
 
-
 def delete(request, pid):
     if request.method == 'POST':
+        if not is_admin(request):
+            messages.error(request, 'Only administrators can delete payments.')
+            return redirect('payment.index')
+
         try:
             payment = Payment.objects.get(id=pid)
-            if is_admin(request) or payment.school == get_user_school(request):
-                with transaction.atomic():
-                    Action.objects.create(sender=request.user, verb="deleted this payment", target=payment)
-                    payment.delete()
-                    messages.success(request, 'Payment deleted successfully')
-            else:
-                messages.error(request, 'Permission denied')
+            with transaction.atomic():
+                Action.objects.create(sender=request.user, verb="deleted this payment", target=payment)
+                payment.delete()
+                messages.success(request, 'Payment deleted successfully')
         except Payment.DoesNotExist:
             messages.error(request, 'Payment does not exist')
-    return redirect('payment.index')
 
+    return redirect('payment.index')
 
 def invoice(request, pid):
     try:
@@ -120,16 +127,18 @@ def invoice(request, pid):
         messages.error(request, 'Payment does not exist')
         return redirect('payment.index')
 
-
 def report(request):
     form = DateSelectionForm()
-    school = get_user_school(request)
     month = request.GET.get('month')
     year = request.GET.get('year')
 
     if is_admin(request):
         queryset = Payment.objects.all()
     else:
+        school = get_user_school(request)
+        if not school:
+            messages.error(request, "Your account is not linked to a school.")
+            return redirect('dashboard')
         queryset = Payment.objects.filter(school=school)
 
     if month and year:

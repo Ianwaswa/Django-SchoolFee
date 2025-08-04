@@ -32,11 +32,11 @@
                         {% for non_field_error in form.non_field_errors %}
                             <div class="invalid-feedback d-block">{{ non_field_error }}</div>
                         {% endfor %}
-                        {% for fields in form %}
+                        {% for field in form %}
                             <div class="form-group">
-                                <label for="{{ fields.id_for_label }}" class="text-capitalize">{{ fields.label }}</label>
-                                {{ fields }}
-                                {% for error in fields.errors %}
+                                <label for="{{ field.id_for_label }}" class="text-capitalize">{{ field.label }}</label>
+                                {{ field }}
+                                {% for error in field.errors %}
                                     <div class="invalid-feedback d-block">{{ error }}</div>
                                 {% endfor %}
                             </div>
@@ -55,8 +55,18 @@
 {% endblock %}
 
 {% block script %}
+<script src="{% static 'vendor/select2/select2.min.js' %}"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // Keep search enabled for student dropdown only
+        $('#id_student_id').select2({
+            theme: 'bootstrap4',
+            placeholder: 'Search and select a student',
+            allowClear: true
+        });
+
+        // Don't apply Select2 to id_course_id to preserve change event handling
+
         const courseSelect = document.getElementById("id_course_id");
         const feeInput = document.getElementById("id_total_fee");
         const feePreview = document.getElementById("course-fee-preview");
