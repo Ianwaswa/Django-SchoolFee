@@ -70,7 +70,15 @@
 <script src="{% static 'js/main.js' %}"></script>
 <script>
   $(function () {
-    $('select').each(function () {
+    // Apply Select2 to the remarks field only
+    $('#id_remarks').select2({
+      theme: 'bootstrap4',
+      placeholder: 'Select a payment method',
+      allowClear: true,
+    });
+
+    // Other selects
+    $('select').not('#id_remarks').each(function () {
       $(this).select2({
         theme: 'bootstrap4',
         placeholder: '---',

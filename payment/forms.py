@@ -21,8 +21,9 @@ class CreatePaymentForm(forms.ModelForm):
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         label='Amount'
     )
-    remarks = forms.CharField(
-        widget=forms.Textarea(attrs={'class': 'form-control'}),
+    remarks = forms.ChoiceField(
+        choices=Payment.REMARK_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'}),
         label='Remarks'
     )
 
@@ -41,7 +42,6 @@ class CreatePaymentForm(forms.ModelForm):
             else:
                 school = user.userprofile.school
                 self.fields['enroll_id'].queryset = Enroll.objects.filter(school=school)
-
 
 class DateSelectionForm(forms.Form):
     MONTH_CHOICES = (
