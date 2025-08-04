@@ -1,188 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
-    {% load static %}
+{% load static %}
 <head>
-    <meta charset="utf-8" />
-    <title>Invoice</title>
+  <meta charset="utf-8" />
+  <title>Invoice</title>
 
-    <style>
-        .invoice-box {
-            margin: auto;
-            border: 1px solid #eee;
-            font-size: 16px;
-            line-height: 24px;
-            font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-            color: #555;
-        }
+  <style>
+    .invoice-box {
+      margin: auto;
+      border: 1px solid #eee;
+      font-size: 16px;
+      line-height: 24px;
+      font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+      color: #555;
+    }
 
-        .invoice-box table {
-            width: 100%;
-            line-height: inherit;
-            text-align: left;
-        }
+    .invoice-box table {
+      width: 100%;
+      line-height: inherit;
+      text-align: left;
+    }
 
-        .invoice-box table td {
-            padding: 5px;
-            vertical-align: top;
-        }
+    .invoice-box table td {
+      padding: 5px;
+      vertical-align: top;
+    }
 
-        .invoice-box table tr td:nth-child(2) {
-            text-align: right;
-        }
+    .invoice-box table tr td:nth-child(2) {
+      text-align: right;
+    }
 
-        .invoice-box table tr.top table td {
-            padding-bottom: 20px;
-        }
+    .invoice-box table tr.top table td {
+      padding-bottom: 20px;
+    }
 
-        .invoice-box table tr.information table td {
-            padding-bottom: 40px;
-        }
+    .invoice-box table tr.information table td {
+      padding-bottom: 40px;
+    }
 
-        .invoice-box table tr.heading td {
-            background: #eee;
-            border-bottom: 1px solid #ddd;
-            font-weight: bold;
-        }
+    .invoice-box table tr.heading td {
+      background: #eee;
+      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+    }
 
-        .invoice-box table tr.details td {
-            padding-bottom: 20px;
-        }
+    .invoice-box table tr.details td {
+      padding-bottom: 20px;
+    }
 
-        .invoice-box table tr.item td {
-            border-bottom: 1px solid #eee;
-        }
+    .invoice-box table tr.item td {
+      border-bottom: 1px solid #eee;
+    }
 
-        .invoice-box table tr.item.last td {
-            border-bottom: none;
-        }
+    .invoice-box table tr.item.last td {
+      border-bottom: none;
+    }
 
-        .invoice-box table tr.total td:nth-child(2) {
-            font-weight: bold;
-        }
+    .invoice-box table tr.total td:nth-child(2) {
+      font-weight: bold;
+    }
 
-        @media only screen and (max-width: 600px) {
-            .invoice-box table tr.top table td,
-            .invoice-box table tr.information table td {
-                width: 100%;
-                display: block;
-                text-align: center;
-            }
-        }
+    @media only screen and (max-width: 600px) {
+      .invoice-box table tr.top table td,
+      .invoice-box table tr.information table td {
+        width: 100%;
+        display: block;
+        text-align: center;
+      }
+    }
 
-        .invoice-box.rtl {
-            direction: rtl;
-            font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-        }
+    .invoice-box.rtl {
+      direction: rtl;
+      font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+    }
 
-        .invoice-box.rtl table {
-            text-align: right;
-        }
+    .invoice-box.rtl table {
+      text-align: right;
+    }
 
-        .invoice-box.rtl table tr td:nth-child(2) {
-            text-align: left;
-        }
+    .invoice-box.rtl table tr td:nth-child(2) {
+      text-align: left;
+    }
 
-        .logo {
-            text-align: center;
-            padding: 10px 0;
-        }
+    .school-header {
+      text-align: center;
+      padding: 10px 0;
+    }
 
-        .logo img {
-            height: 40px;
-        }
+    .school-header h2 {
+      margin: 0;
+      text-transform: uppercase;
+    }
 
-        .invoice-title {
-            text-align: left;
-            margin: 0;
-        }
-    </style>
+    .school-header p {
+      margin: 0;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
 </head>
 
 <body>
-    <div class="invoice-box">
-        <!-- Logo and Title -->
-        <div class="logo">
-            <img src="{% static 'img/login.png' %}" alt="Logo">
-        </div>
-        <!-- <h3 class="invoice-title">Invoice</h3> -->
-
-        <table cellpadding="0" cellspacing="0">
-            <tr class="top">
-                <td colspan="2">
-                    <table>
-                        <tr>
-                            <td></td>
-                            <td>
-                                Invoice: #{{ pay_current.id }}<br />
-                                Enroll: #{{ pay_current.enroll_id_id }} <br />
-                                Served By: <span class="text-capitalize">{{ pay_current.created_by }}</span> <br />
-                                {{ pay_current.date_created }}<br />
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-
-            <tr class="information">
-                <td colspan="2">
-                    <table>
-                        <tr>
-                            <td>
-                                Grade/Class: {{ pay_current.enroll_id.course_id.name }} <br />
-                                Term: {{ pay_current.enroll_id.course_id.level }} <br />
-                                Description: {{ pay_current.enroll_id.course_id.course_desc }} <br />
-                            </td>
-
-                            <td>
-                                {{ pay_current.enroll_id.student_id }}<br />
-                                {{ pay_current.enroll_id.student_id.contact }}<br />
-                                {{ pay_current.enroll_id.student_id.email }}
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-
-            <tr class="heading">
-                <td>Fee(s)</td>
-                <td>Amount</td>
-            </tr>
-
-            {% for fee in fees %}
-                <tr class="details">
-                    <td>{{ fee.fee_desc }}</td>
-                    <td>KES {{ fee.amount }}</td>
-                </tr>
-            {% endfor %}
-
-            <tr class="heading">
-                <td>Date</td>
-                <td>Amount</td>
-            </tr>
-
-            {% for payment in pay_history %}
-                <tr class="details">
-                    <td>{{ payment.date_created }}</td>
-                    <td class="pay_history">KES {{ payment.amount }}</td>
-                </tr>
-            {% endfor %}
-
-            <tr class="total">
-                <td></td>
-                <td id="total_paid">Total: KES</td>
-            </tr>
-            <tr class="total">
-                <td></td>
-                <td id="total_payable">Total Payable: KES{{ pay_current.enroll_id.total_fee }}</td>
-            </tr>
-            <tr class="total">
-                <td></td>
-                <td id="balance">Balance: KES</td>
-            </tr>
-            <tr class="d-block mt-4">
-                <td class="text-monospace">{{ pay_current.remarks }}</td>
-            </tr>
-        </table>
+  <div class="invoice-box">
+    <!-- Personalized School Header -->
+    <div class="school-header">
+      <h2>{{ user.userprofile.school.name }}</h2>
+      <p>{{ user.userprofile.school.location }}</p>
     </div>
+
+    <table cellpadding="0" cellspacing="0">
+      <tr class="top">
+        <td colspan="2">
+          <table>
+            <tr>
+              <td></td>
+              <td>
+                Invoice: #{{ pay_current.id }}<br />
+                Enroll: #{{ pay_current.enroll_id_id }}<br />
+                Served By: <span class="text-capitalize">{{ pay_current.created_by }}</span><br />
+                {{ pay_current.date_created }}<br />
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <tr class="information">
+        <td colspan="2">
+          <table>
+            <tr>
+              <td>
+                Grade/Class: {{ pay_current.enroll_id.course_id.name }}<br />
+                Term: {{ pay_current.enroll_id.course_id.level }}<br />
+                Description: {{ pay_current.enroll_id.course_id.course_desc }}
+              </td>
+
+              <td>
+                {{ pay_current.enroll_id.student_id }}<br />
+                {{ pay_current.enroll_id.student_id.contact }}<br />
+                {{ pay_current.enroll_id.student_id.email }}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <tr class="heading">
+        <td>Fee(s)</td>
+        <td>Amount</td>
+      </tr>
+
+      {% for fee in fees %}
+      <tr class="details">
+        <td>{{ fee.fee_desc }}</td>
+        <td>KES {{ fee.amount }}</td>
+      </tr>
+      {% endfor %}
+
+      <tr class="heading">
+        <td>Date</td>
+        <td>Amount</td>
+      </tr>
+
+      {% for payment in pay_history %}
+      <tr class="details">
+        <td>{{ payment.date_created }}</td>
+        <td class="pay_history">KES {{ payment.amount }}</td>
+      </tr>
+      {% endfor %}
+
+      <tr class="total">
+        <td></td>
+        <td id="total_paid">Total: KES</td>
+      </tr>
+      <tr class="total">
+        <td></td>
+        <td id="total_payable">Total Payable: KES{{ pay_current.enroll_id.total_fee }}</td>
+      </tr>
+      <tr class="total">
+        <td></td>
+        <td id="balance">Balance: KES</td>
+      </tr>
+      <tr class="d-block mt-4">
+        <td class="text-monospace">{{ pay_current.remarks }}</td>
+      </tr>
+    </table>
+  </div>
 </body>
 </html>

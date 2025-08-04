@@ -41,7 +41,7 @@
                         {% endfor %}
                         {% for fields in form %}
                             <div class="form-group">
-                                <label for="{{ fields.id_for_label }}" class="text-capitalize">{{ fields.html_name }}</label>
+                                <label for="{{ fields.id_for_label }}" class="text-capitalize">{{ fields.label }}</label>
                                 {{ fields }}
                                 {% for error in fields.errors %}
                                     <div class="invalid-feedback d-block">

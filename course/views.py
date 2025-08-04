@@ -95,9 +95,8 @@ def update(request, cid):
     if request.method == 'POST':
         try:
             course = models.Course.objects.get(id=cid)
-            fee = models.Fee.objects.filter(course=course)
+            fee_qs = models.Fee.objects.filter(course=course)
             course_form = CreateCourseForm(request.POST, instance=course)
-            fee_form = CreateFeeForm(request.POST, instance=fee.last())
 
             try:
                 fees_json = request.POST.get('fee_data', '[]')
@@ -113,7 +112,8 @@ def update(request, cid):
             if course_form.is_valid():
                 if fees and isinstance(fees, list):
                     with transaction.atomic():
-                        fee.delete()
+                        fee_qs.delete()
+
                         course = course_form.save(commit=False)
                         course.school = school
                         course.save()
@@ -128,11 +128,19 @@ def update(request, cid):
                         return redirect('course.index')
                 else:
                     messages.warning(request, 'Please add at least one fee before submitting.')
-                    return redirect('course.edit', cid=cid)
             else:
-                return render(request, 'course/edit.html', {'course': course_form, 'fee': fee_form, 'fees': fee})
+                messages.error(request, 'Please correct the errors below.')
+
+            # On error
+            fee_form = CreateFeeForm()
+            return render(request, 'course/edit.html', {
+                'course': course_form,
+                'fee': fee_form,
+                'fees': fee_qs
+            })
 
         except models.Course.DoesNotExist:
+            messages.error(request, "Course not found.")
             return redirect('course.index')
 
     return redirect('course.index')
